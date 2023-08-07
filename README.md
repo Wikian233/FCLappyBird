@@ -21,10 +21,15 @@ python main.py
 ## 2. Game control
 
 Ctrtl + P: pause the game
+
 Ctrl + 1: sets the frame rate of the game to the default value.
+
 Ctrl + 2: sets the frame rate of the game to half of the default value.
+
 Ctrl + 3: sets the frame rate of the game to 10 times of the default value.
+
 Ctrl + 4: creates a human player controlled bird (if you really want to complete with the agent bird).
+
 Space: makes the bird jump for human player controlled bird.
 
 # AI Agents which can be used to play the game
