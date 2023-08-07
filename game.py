@@ -252,7 +252,7 @@ class Game:
                         self._fps = 0.5 * FPS
                     elif event.key == pg.K_3:  # if Ctrl + 3 are pressed, it sets the frame rate of the game to 10 times of the default value.
                         self._fps = 10 * FPS
-                    elif event.key == pg.K_h:  # if Ctrl + h are pressed, it creates a human player controlled bird (if you really want to complete with the agent bird).
+                    elif event.key == pg.K_4:  # if Ctrl + h are pressed, it creates a human player controlled bird (if you really want to complete with the agent bird).
                         if not self._human_bird or not self._human_bird.alive():
                             self._create_human_player()
                 elif event.key == pg.K_SPACE or event.key == pg.K_UP:   
