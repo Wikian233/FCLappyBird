@@ -5,7 +5,7 @@ from config import *
 import random
 import os
 import glob
-from prepocessing import *
+# from prepocessing import *
 import cv2
 
 layers = NEURONSPERLAYER_FCL3
@@ -33,7 +33,7 @@ class FCLNet(fcl.FeedforwardClosedloopLearning):
         self.netOutput = None
 
     def train(self, input, err):
-        self.rawInputs = cv2.Canny(input, threshold1 = 200, threshold2=300)
+
         self.input_buff[:] = np.ndarray.flatten(self.rawInputs)
 
         print(self.input_buff.shape)

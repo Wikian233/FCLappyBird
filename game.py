@@ -79,7 +79,7 @@ class Game:
             s.kill()
         # kill all sprites in the all_sprites group
 
-        # self._create_human_player()
+        # self._add_human_player()
 
         # uncomment the following line to use the fcl2 network
         if self._max_score_so_far > 2500:
@@ -198,7 +198,7 @@ class Game:
                 pg.display.update()
                 pg.time.wait(50)
     
-    def _create_human_player(self):
+    def _add_human_player(self):
         # find the x coordinate to place the human player's bird
         # It does this by iterating through all the pipes and finding the right boundary position of all the pipes on the left half of the screen, 
         # which is saved in the x_left_pipes list.
@@ -254,7 +254,7 @@ class Game:
                         self._fps = 10 * FPS
                     elif event.key == pg.K_4:  # if Ctrl + h are pressed, it creates a human player controlled bird (if you really want to complete with the agent bird).
                         if not self._human_bird or not self._human_bird.alive():
-                            self._create_human_player()
+                            self._add_human_player()
                 elif event.key == pg.K_SPACE or event.key == pg.K_UP:   
                     # if the space key or the up arrow key is pressed, it makes the human player's bird jump.
                     if self._human_bird is not None and self._human_bird.alive():
@@ -311,6 +311,7 @@ class Game:
     #     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     #     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     #     frame = cv2.resize(frame, (130, 50))
+    #     self.frame = cv2.Canny(frame, threshold1 = 200, threshold2=300)
     #     return frame
     
     def error_flap(self, bird):

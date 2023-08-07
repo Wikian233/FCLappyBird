@@ -30,6 +30,7 @@ MIN_PIPE_LENGTH = 100
 # FCL SETTINGS
 NEURONSPERLAYER_FCL = [4, 8, 3] # number of neurons in each layer for fcl
 NEURONSPERLAYER_FCL2 = [4, 8, 4] # number of neurons in each layer for fcl2
+NEURONSPERLAYER_FCL3 = [4, 8, 5] # number of neurons in each layer for fcl3
 
 LEARNING_RATE = 0.0001 #0.0001 # learning rate 
 # note that the learning rate is set as 0.0001 for fcl2
