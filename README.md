@@ -36,8 +36,8 @@ Space: makes the bird jump for human player controlled bird.
 (For futher details, please check the codes, which are well commented)
 THe enviroment can be used to test different AI agents. The following agents are available:
 ## 1. FCLNet driven by position errors
-The error signal is defined as the error between the bird's height and the height of the front pipe's center
-and the enviroment informations used to train the FCLNet are the errors of nearest front 4 pipes.   
+The error signal is defined as the error between the bird's height and the height of the front pipe's gap center
+and the environment informations used to train the FCLNet are the errors signals of nearest 4 front pipes.   
 
 if you want to use this agent, please uncomment
 ```
