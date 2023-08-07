@@ -1,0 +1,23 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+a = pd.read_csv('bird_trajectory.csv')
+b = pd.read_csv('bird_trajectory2.csv')
+c = pd.read_csv('bird_trajectory3.csv')
+
+fig, ax = plt.subplots(2,2)
+for column in a.columns:
+    ax[0, 0].plot(a[column][:2000], linewidth=1, label=f'trajectoryFcl2')
+for column in b.columns:
+    ax[0, 0].plot(b[column][:2000], linewidth=1, label=f'trajectoryFcl1')
+for column in c.columns:
+    ax[0, 0].plot(c[column][:2000], linewidth=1, label=f'trajectoryError')
+
+
+
+ax[0, 0].legend()
+ax[0, 0].set_title('Bird Trajectory')
+ax[0, 0].set_xlabel('score')
+ax[0, 0].set_ylabel('y')
+
+plt.show()

@@ -164,7 +164,8 @@ class Game:
             self._update()
             self._draw()
             self._clock.tick(self._fps)
-            self._save_FCL_parameters()
+            # self._save_FCL_parameters()
+            # self._save_Bird_Trajectory()
         if not self.running:
             return
 
@@ -312,6 +313,12 @@ class Game:
     #     frame = cv2.resize(frame, (130, 50))
     #     return frame
     
+    def error_flap(self, bird):
+        # use error
+        error = self._get_error(bird)
+        bird.brain = error
+        if bird.brain > 0:
+            bird.flap()
 
     def fcl_flap(self, bird):
         # use fcl
@@ -336,7 +343,8 @@ class Game:
             file.close()
         bird.brain = self.FCLNet.train(inputs, error)
         if bird.brain > 0:
-            bird.flap()   
+            bird.flap()
+   
 
     # def fclappy_vision_flap(self, bird):
     #     # use fclappy_vision
@@ -420,6 +428,13 @@ class Game:
         d = d.reshape(1,1)
         df = pd.DataFrame(d)
         df.to_csv('error.csv', mode='a', header=False, index=False)
+
+    def _save_Bird_Trajectory(self):
+        a = np.zeros((1,1))
+        a = np.array(self._agent_bird_1.rect.y)
+        a = a.reshape(1,1)
+        df = pd.DataFrame(a)
+        df.to_csv('bird_trajectory3.csv', mode='a', header=False, index=False)
 
     def _draw(self):
 
