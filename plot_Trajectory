@@ -20,4 +20,7 @@ ax[0, 0].set_title('Bird Trajectory')
 ax[0, 0].set_xlabel('score')
 ax[0, 0].set_ylabel('y')
 
+
+
+
 plt.show()
