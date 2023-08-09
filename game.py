@@ -16,6 +16,10 @@ from fcl2 import *
 
 import numpy as np
 
+import torch
+import torch.nn as nn
+
+
 class Game:
     def __init__(self):
         os.environ['SDL_VIDEO_WINDOW_POS'] = '0, 0'
@@ -86,7 +90,6 @@ class Game:
             self.FCLNet.loadBestModel()
         # self.FCLNet.loadBestModel()
         self._create_agent_player(brain = 1)
-        # self._agent_bird_1.brain = self._get_error(self._agent_bird_1)
 
         # print(self._frame.shape)
 
@@ -318,8 +321,7 @@ class Game:
     #     frame = pg.surfarray.array3d(pg.display.get_surface())
     #     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     #     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    #     frame = cv2.resize(frame, (130, 50))
-    #     self.frame = cv2.Canny(frame, threshold1 = 200, threshold2=300)
+    #     frame = cv2.Canny(frame, threshold1 = 200, threshold2=300)
     #     return frame
     
     def error_flap(self, bird):
@@ -372,8 +374,8 @@ class Game:
 
     # def fclappy_vision_flap(self, bird):
     #     # use fclappy_vision
-    #     inputs = self._frame
-    #     error = self._get_error2(bird)
+    #     inputs = self._get_frame()
+    #     error = self._get_error(bird)
     #     if error == 0 and bird.score > 2500 and bird.score % 1000 == 0:
     #         if not os.path.exists("Models"):
     #             os.mkdir("Models")

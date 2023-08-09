@@ -5,6 +5,31 @@ from mss import mss
 import subprocess
 import re
 
+import torch
+import torch.nn as nn
+
+
+conv_layer = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1)
+bn1 = nn.BatchNorm2d(16)
+pool_layer = nn.MaxPool2d(kernel_size=2, stride=2) 
+conv_layer2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
+bn2 = nn.BatchNorm2d(32)
+conv_layer3 = nn.Conv2d(in_channels=32, out_channels=16, kernel_size=3, stride=1, padding=1)
+bn3 = nn.BatchNorm2d(16)
+conv_layer4 = nn.Conv2d(in_channels=16, out_channels=4, kernel_size=3, stride=1, padding=1)
+bn4 = nn.BatchNorm2d(4)
+
+if torch.cuda.is_available():
+    conv_layer = conv_layer.cuda()
+    pool_layer = pool_layer.cuda()
+    conv_layer2 = conv_layer2.cuda()
+    conv_layer3 = conv_layer3.cuda()
+    conv_layer4 = conv_layer4.cuda()
+    bn1 = bn1.cuda()
+    bn2 = bn2.cuda()
+    bn3 = bn3.cuda()
+    bn4 = bn4.cuda()
+
 
 def get_window_geometry(window_name):
     """
@@ -23,46 +48,39 @@ def get_window_geometry(window_name):
     return {'left': left, 'top': top + 50, 'width': width, 'height': height}
 
 def process_img(image):
-    original_image = image
-    # convert to gray
-    processed_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # edge detection
-    processed_img =  cv2.Canny(processed_img, threshold1 = 200, threshold2=300)
-    return processed_img
+    image = cv2.resize(image, (int(image.shape[1] / 2), int(image.shape[0] / 2)))
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    tensor_frame = torch.from_numpy(image).float().unsqueeze(0).unsqueeze(0)  # 为batch和channel增加一个维度
 
-def convolution2D(img, kernel):
-    # input the size of image and kernel
-    iH, iW = img.shape
-    kH, kW = kernel.shape
-    
-    # 输出的尺寸
-    oH, oW = iH - kH + 1, iW - kW + 1
-    output = np.zeros((oH, oW))
-    
-    # 卷积操作
-    for i in range(oH):
-        for j in range(oW):
-            output[i, j] = np.sum(img[i:i+kH, j:j+kW] * kernel)
-            
-    return output
+    if torch.cuda.is_available():
+        tensor_frame = tensor_frame.cuda()
 
-def max_pooling(input_matrix, pool_size=2, stride=2):
-    """
-    Performs max pooling on the input matrix using the given pool size and stride.
-    """
-    h, w = input_matrix.shape
-    output_h = (h - pool_size) // stride + 1
-    output_w = (w - pool_size) // stride + 1
+    # the first conv-bn-relu-pooling layer
+    tensor_frame = conv_layer(tensor_frame)
+    tensor_frame = bn1(tensor_frame)
+    tensor_frame = nn.functional.relu(tensor_frame)
+    tensor_frame = pool_layer(tensor_frame) 
 
-    output = np.zeros((output_h, output_w))
+    # the second conv-bn-relu layer
+    tensor_frame = conv_layer2(tensor_frame)
+    tensor_frame = bn2(tensor_frame)
+    tensor_frame = nn.functional.relu(tensor_frame)
+    tensor_frame = pool_layer(tensor_frame)
+    # the third conv-bn-relu layer
+    tensor_frame = conv_layer3(tensor_frame)
+    tensor_frame = bn3(tensor_frame)
+    tensor_frame = nn.functional.relu(tensor_frame)
+    tensor_frame = pool_layer(tensor_frame)
+    # the fourth conv-bn-relu layer
+    tensor_frame = conv_layer4(tensor_frame)
+    tensor_frame = bn4(tensor_frame)
+    tensor_frame = nn.functional.relu(tensor_frame)
+    tensor_frame = pool_layer(tensor_frame)
 
-    for i in range(0, output_h):
-        for j in range(0, output_w):
-            output[i, j] = np.max(
-                input_matrix[i*stride : i*stride + pool_size, j*stride : j*stride + pool_size]
-            )
+    # if necessary, convert tensor back to numpy
+    tensor_frame = tensor_frame.cpu().detach().numpy()
 
-    return output
+    return tensor_frame
 
 def screen_record(window_name):
     sct = mss()
@@ -77,30 +95,24 @@ def screen_record(window_name):
         fps = 1 / (current_time - last_time)
         last_time = current_time
 
-        #print('fps: {}'.format(fps))
+        print('fps: {}'.format(fps))
 
-        img = cv2.resize(img, (geometry['width'] // 3, geometry['height'] // 3))  # decrease resolution
-        
+
         img = process_img(img)
+        image = np.ndarray.flatten(img[0, 1, :, :])
+        print(image.shape)
 
-        kernel = np.array([[1, 1],
-                                  [-1, -1]])
-        
-        img = convolution2D(img, kernel)
-        img = max_pooling(img)
-        img = convolution2D(img, kernel)    
-        img = max_pooling(img)
-        img = convolution2D(img, kernel)
-        img = max_pooling(img)
-        
-        #img = convolution2D(img, kernel2)
-        img = cv2.putText(img, 'FPS: {:.2f}'.format(fps), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-        cv2.imshow('Screen Capture', img)
+
+        img_to_show = img[0, 2, :, :]
+        img_to_show = (img_to_show - img_to_show.min()) / (img_to_show.max() - img_to_show.min()) * 255
+        img_to_show = img_to_show.astype(np.uint8)
+        cv2.imshow('Screen Capture', img_to_show)
+
         if cv2.waitKey(25) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
             break
 
-        print(img.shape)
+        
 
 if __name__ == "__main__":
     screen_record('FCLappyBird')
