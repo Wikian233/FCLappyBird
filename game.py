@@ -84,7 +84,7 @@ class Game:
         # uncomment the following line to use the fcl2 network
         if self._max_score_so_far > 2500:
             self.FCLNet.loadBestModel()
-
+        # self.FCLNet.loadBestModel()
         self._create_agent_player(brain = 1)
         # self._agent_bird_1.brain = self._get_error(self._agent_bird_1)
 
@@ -251,7 +251,7 @@ class Game:
                     elif event.key == pg.K_2:  # if Ctrl + 2 are pressed, it sets the frame rate of the game to half of the default value.
                         self._fps = 0.5 * FPS
                     elif event.key == pg.K_3:  # if Ctrl + 3 are pressed, it sets the frame rate of the game to 10 times of the default value.
-                        self._fps = 10 * FPS
+                        self._fps = 20 * FPS
                     elif event.key == pg.K_4:  # if Ctrl + h are pressed, it creates a human player controlled bird (if you really want to complete with the agent bird).
                         if not self._human_bird or not self._human_bird.alive():
                             self._add_human_player()
@@ -282,6 +282,14 @@ class Game:
         # error = errorGain / 1 + np.arctan(bird.score)
         if bird.score < 700:
             error = errorGain / (1 + np.e ** (bird.score)) 
+        else:
+            error = 0
+        return error
+    
+    def _get_error3(self, bird):
+        errorGain = 20
+        if bird.score < 700:
+            error = errorGain / (1 + np.e ** (bird.score - bird.flapTimes))
         else:
             error = 0
         return error
@@ -345,7 +353,22 @@ class Game:
         bird.brain = self.FCLNet.train(inputs, error)
         if bird.brain > 0:
             bird.flap()
-   
+    
+    def fcl3_flap(self, bird):
+        # use fcl2
+        inputs = self._get_netinput(bird)
+        error = self._get_error3(bird)
+        if error == 0 and bird.score > 2500 and bird.score % 1000 == 0:
+            if not os.path.exists("Models"):
+                os.mkdir("Models")
+            self.FCLNet.saveModel("Models/fcl2-" + str(bird.score) + ".txt")
+            file = open("Models/checkpoint", 'w')
+            file.write("Models/fcl2-" + str(bird.score) + ".txt")
+            file.close()
+        bird.brain = self.FCLNet.train(inputs, error)
+        if bird.brain > 0:
+            bird.flap()
+            bird.flapTimes += 1
 
     # def fclappy_vision_flap(self, bird):
     #     # use fclappy_vision
@@ -435,7 +458,7 @@ class Game:
         a = np.array(self._agent_bird_1.rect.y)
         a = a.reshape(1,1)
         df = pd.DataFrame(a)
-        df.to_csv('bird_trajectory3.csv', mode='a', header=False, index=False)
+        df.to_csv('bird_trajectory4.csv', mode='a', header=False, index=False)
 
     def _draw(self):
 

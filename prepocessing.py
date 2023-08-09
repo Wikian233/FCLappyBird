@@ -31,7 +31,7 @@ def process_img(image):
     return processed_img
 
 def convolution2D(img, kernel):
-    # 输入图像和核的尺寸
+    # input the size of image and kernel
     iH, iW = img.shape
     kH, kW = kernel.shape
     
@@ -44,6 +44,24 @@ def convolution2D(img, kernel):
         for j in range(oW):
             output[i, j] = np.sum(img[i:i+kH, j:j+kW] * kernel)
             
+    return output
+
+def max_pooling(input_matrix, pool_size=2, stride=2):
+    """
+    Performs max pooling on the input matrix using the given pool size and stride.
+    """
+    h, w = input_matrix.shape
+    output_h = (h - pool_size) // stride + 1
+    output_w = (w - pool_size) // stride + 1
+
+    output = np.zeros((output_h, output_w))
+
+    for i in range(0, output_h):
+        for j in range(0, output_w):
+            output[i, j] = np.max(
+                input_matrix[i*stride : i*stride + pool_size, j*stride : j*stride + pool_size]
+            )
+
     return output
 
 def screen_record(window_name):
@@ -59,21 +77,30 @@ def screen_record(window_name):
         fps = 1 / (current_time - last_time)
         last_time = current_time
 
-        print('fps: {}'.format(fps))
+        #print('fps: {}'.format(fps))
 
-        img = cv2.resize(img, (geometry['width'] // 4, geometry['height'] // 2))  # decrease resolution
-        img = cv2.putText(img, 'FPS: {:.2f}'.format(fps), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        img = cv2.resize(img, (geometry['width'] // 3, geometry['height'] // 3))  # decrease resolution
+        
         img = process_img(img)
 
-        sobel_kernel = np.array([[1, 1],
-                                 [ -1, -1]])
+        kernel = np.array([[1, 1],
+                                  [-1, -1]])
         
-        img = convolution2D(img, sobel_kernel)
-
+        img = convolution2D(img, kernel)
+        img = max_pooling(img)
+        img = convolution2D(img, kernel)    
+        img = max_pooling(img)
+        img = convolution2D(img, kernel)
+        img = max_pooling(img)
+        
+        #img = convolution2D(img, kernel2)
+        img = cv2.putText(img, 'FPS: {:.2f}'.format(fps), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         cv2.imshow('Screen Capture', img)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
             break
+
+        print(img.shape)
 
 if __name__ == "__main__":
     screen_record('FCLappyBird')

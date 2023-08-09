@@ -82,6 +82,7 @@ class Bird(MovableObject):
         self.rect = image.get_rect(x=x, y=y)
         self._vel_y = 0 # vertical velocity
         self.score = 0
+        self.flapTimes = 0
 
     def update(self, *args):
 
