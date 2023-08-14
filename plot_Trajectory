@@ -8,11 +8,11 @@ c = pd.read_csv('bird_trajectory3.csv')
 
 fig, ax = plt.subplots(2,2)
 for column in a.columns:
-    ax[0, 0].plot(a[column][:2000], linewidth=1, label=f'trajectoryFcl2')
+    ax[0, 0].plot(a[column][:2000], linewidth=1, label=f'FCL-AbstractError')
 for column in b.columns:
-    ax[0, 1].plot(b[column][:2000], linewidth=1, label=f'trajectoryFcl1')
+    ax[0, 0].plot(b[column][:2000], linewidth=1, label=f'FCL-PositionError')
 for column in c.columns:
-    ax[1, 0].plot(c[column][:2000], linewidth=1, label=f'trajectoryError')
+    ax[0, 0].plot(c[column][:2000], linewidth=1, label=f'Error Control')
 # for column in d.columns:
 #     ax[1, 1].plot(d[column][:2000], linewidth=1, label=f'trajectoryFcl3')
 
@@ -23,15 +23,15 @@ ax[0, 0].set_title('Bird Trajectory')
 ax[0, 0].set_xlabel('score')
 ax[0, 0].set_ylabel('y')
 
-ax[0, 1].legend()
-ax[0, 1].set_title('Bird Trajectory')
-ax[0, 1].set_xlabel('score')
-ax[0, 1].set_ylabel('y')
+# ax[0, 1].legend()
+# ax[0, 1].set_title('Bird Trajectory')
+# ax[0, 1].set_xlabel('score')
+# ax[0, 1].set_ylabel('y')
 
-ax[1, 0].legend()
-# ax[1, 0].set_title('Bird Trajectory')
-ax[1, 0].set_xlabel('score')
-ax[1, 0].set_ylabel('y')
+# ax[1, 0].legend()
+# # ax[1, 0].set_title('Bird Trajectory')
+# ax[1, 0].set_xlabel('score')
+# ax[1, 0].set_ylabel('y')
 
 
 

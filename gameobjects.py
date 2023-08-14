@@ -1,19 +1,9 @@
-'''
-Game objects which are used in the game
-1, Bird
-2, Pipe
-3, Background
-
-'''
 import enum
 import pygame as pg
 from config import *
 from os import path
 
 class Background(pg.sprite.Sprite):
-    """
-    Seamless background class.
-    """
     def __init__(self, game, image):
         self._layer = 0
 
