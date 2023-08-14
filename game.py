@@ -167,8 +167,8 @@ class Game:
             self._update()
             self._draw()
             self._clock.tick(self._fps)
-            # self._save_FCL_parameters()
-            # self._save_Bird_Trajectory()
+            self._save_FCL_parameters()
+            self._save_Bird_Trajectory()
         if not self.running:
             return
 
