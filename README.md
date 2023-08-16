@@ -35,7 +35,7 @@ Space: makes the bird jump for human player controlled bird.
 # AI Agents which can be used to play the game
 (For futher details, please check the codes, which are well commented)
 THe enviroment can be used to test different AI agents. The following agents are available:
-## 1. FCLNet driven by position errors
+## 1. FCLNet driven by position errors (completed)
 The error signal is defined as the error between the bird's height and the height of the front pipe's gap center
 and the environment informations used to train the FCLNet are the errors signals of nearest 4 front pipes.   
 
@@ -68,12 +68,12 @@ to
 and the learing rate should also be changed, which can be found in the config.py file
 
 
-## 2. FCLNet Driven by abstract error
+## 2. FCLNet Driven by abstract error (completed)
 The error signal is defined as to maximize the score which bird can get. 
 The enviroment informations used to train the FCLNet are the errors of nearest front 4 pipes.
 
-## 3. FCLNet Driven by abstract error and vision enviroment input (under development)
-Now facing some problems, maybe the vision input is too large for the FCLNet to learn. Convolutional layer may be needed to reduce the input size and extract the features of the vision input.
+## 3. FCLNet with Convolutional neural network using vision environment input (completed)
+Please check the branch: DeepFCL with Convolutional Neural Network for more details.
 
 # Results
 ## 1. FCLNet driven by position errors
@@ -82,7 +82,7 @@ Now facing some problems, maybe the vision input is too large for the FCLNet to 
 ## 2. FCLNet Driven by abstract error
 ![FCLNet Driven by abstract error](./Results/FCL2.png)
 
-## 3. FCLNet Driven by abstract error and vision enviroment input (under development)
+## 3. FCLNet with Convolutional neural network using vision environment input
 
 ## 4. Bird Trajectory comparison between FCLNet driven by position errors and FCLNet Driven by abstract error and simply error-based control 
 ![Bird Trajectory comparison between FCLNet driven by position errors and FCLNet Driven by abstract error and simply error-based control](./Results/Trajectory.png)

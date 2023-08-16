@@ -12,12 +12,12 @@ import torch.nn as nn
 conv_layer = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1)
 bn1 = nn.BatchNorm2d(16)
 pool_layer = nn.MaxPool2d(kernel_size=2, stride=2) 
-conv_layer2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
-bn2 = nn.BatchNorm2d(32)
-conv_layer3 = nn.Conv2d(in_channels=32, out_channels=16, kernel_size=3, stride=1, padding=1)
-bn3 = nn.BatchNorm2d(16)
-conv_layer4 = nn.Conv2d(in_channels=16, out_channels=4, kernel_size=3, stride=1, padding=1)
-bn4 = nn.BatchNorm2d(4)
+conv_layer2 = nn.Conv2d(in_channels=16, out_channels=8, kernel_size=3, stride=1, padding=1)
+bn2 = nn.BatchNorm2d(8)
+conv_layer3 = nn.Conv2d(in_channels=8, out_channels=4, kernel_size=3, stride=1, padding=1)
+bn3 = nn.BatchNorm2d(4)
+conv_layer4 = nn.Conv2d(in_channels=4, out_channels=2, kernel_size=3, stride=1, padding=1)
+bn4 = nn.BatchNorm2d(2)
 
 if torch.cuda.is_available():
     conv_layer = conv_layer.cuda()
@@ -48,8 +48,10 @@ def get_window_geometry(window_name):
     return {'left': left, 'top': top + 50, 'width': width, 'height': height}
 
 def process_img(image):
-    image = cv2.resize(image, (int(image.shape[1] / 2), int(image.shape[0] / 2)))
+    image = cv2.resize(image, (int(image.shape[1] /2 ), int(image.shape[0] /2 )))
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    image = image[0:250, 150:500]
     tensor_frame = torch.from_numpy(image).float().unsqueeze(0).unsqueeze(0)  # 为batch和channel增加一个维度
 
     if torch.cuda.is_available():
@@ -99,14 +101,21 @@ def screen_record(window_name):
 
 
         img = process_img(img)
-        image = np.ndarray.flatten(img[0, 1, :, :])
+        image = np.ndarray.flatten(img)
+
+        #image = np.ndarray.flatten(img[0, 0, :, :])
         print(image.shape)
 
 
-        img_to_show = img[0, 2, :, :]
-        img_to_show = (img_to_show - img_to_show.min()) / (img_to_show.max() - img_to_show.min()) * 255
-        img_to_show = img_to_show.astype(np.uint8)
-        cv2.imshow('Screen Capture', img_to_show)
+        img_to_show1 = img[0, 0, :, :]
+        img_to_show1 = (img_to_show1 - img_to_show1.min()) / (img_to_show1.max() - img_to_show1.min()) * 255
+        img_to_show1 = img_to_show1.astype(np.uint8)
+        cv2.imshow('Screen Capture', img_to_show1)
+
+        img_to_show2 = img[0, 1, :, :]
+        img_to_show2 = (img_to_show2 - img_to_show2.min()) / (img_to_show2.max() - img_to_show2.min()) * 255
+        img_to_show2 = img_to_show2.astype(np.uint8)
+        cv2.imshow('Screen Capture2', img_to_show2)
 
         if cv2.waitKey(25) & 0xFF == ord('q'):
             cv2.destroyAllWindows()

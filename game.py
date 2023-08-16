@@ -10,9 +10,9 @@ import os
 import os.path
 import pandas as pd
 # from fcl import * 
-from fcl2 import *
+# from fcl2 import *
 
-# from FCLappyVision import *
+from FCLappyVision import *
 
 import numpy as np
 
@@ -70,6 +70,8 @@ class Game:
 
         self.FCLNet = FCLNet(LEARNING_RATE)
         # initialize the FCL network to control the bird agent
+        self._error_history = []
+        self.max_size = 2
 
         self._max_score = 0
         self._max_score_so_far = 0 
@@ -86,14 +88,14 @@ class Game:
         # self._add_human_player()
 
         # uncomment the following line to use the fcl2 network
-        if self._max_score_so_far > 2500:
+        if self._max_score_so_far > 3000:
             self.FCLNet.loadBestModel()
         # self.FCLNet.loadBestModel()
         self._create_agent_player(brain = 1)
 
         # print(self._frame.shape)
-
-        self._generate_pipe(80) 
+        
+        self._generate_pipe(300) 
         while self._very_front_pipe.rect.x < MAP_WIDTH:
             self._generate_pipe()
         # This is used to create the first pipe. The parameter is the initial x-coordinate of the pipe, 
@@ -232,7 +234,7 @@ class Game:
         # then try to make the bird jump. This part is the operation part of the AI bird.
         for bird in self.birds:
             if bird is not self._human_bird:
-                self.fcl2_flap(bird)# fcl_flap, fcl2_flap, fclappy_vision_flap
+                self.fclappy_vision_flap(bird)# fcl_flap, fcl2_flap, fclappy_vision_flap
 
     def _handle_events(self):
         for event in pg.event.get():
@@ -317,12 +319,14 @@ class Game:
         # to judge whether the bird should fly up, and generate predictive control signals
         return [input0, input1, input2, input3]
     
-    # def _get_frame(self):
-    #     frame = pg.surfarray.array3d(pg.display.get_surface())
-    #     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-    #     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    #     frame = cv2.Canny(frame, threshold1 = 200, threshold2=300)
-    #     return frame
+    def _get_frame(self):
+        frame = pg.surfarray.array3d(pg.display.get_surface())
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        frame = cv2.Canny(frame, threshold1 = 200, threshold2=300)
+        frame = cv2.resize(frame, (int(frame.shape[1] / 2), int(frame.shape[0] / 2)))
+        frame = frame[150:500,0:250]
+        return frame
     
     def error_flap(self, bird):
         # use error
@@ -372,20 +376,30 @@ class Game:
             bird.flap()
             bird.flapTimes += 1
 
-    # def fclappy_vision_flap(self, bird):
-    #     # use fclappy_vision
-    #     inputs = self._get_frame()
-    #     error = self._get_error(bird)
-    #     if error == 0 and bird.score > 2500 and bird.score % 1000 == 0:
-    #         if not os.path.exists("Models"):
-    #             os.mkdir("Models")
-    #         self.FCLNet.saveModel("Models/fcl2-" + str(bird.score) + ".txt")
-    #         file = open("Models/checkpoint", 'w')
-    #         file.write("Models/fcl2-" + str(bird.score) + ".txt")
-    #         file.close()
-    #     bird.brain = self.FCLNet.train(inputs, error)
-    #     if bird.brain > 0:
-    #         bird.flap() 
+    def _get_error_history(self, bird):
+        if abs(self._get_error(bird)) <= 20:
+            self._error_history.append(self._get_frame())
+        while len(self._error_history) > self.max_size:
+            self._error_history.pop(0)
+        avg_history = np.mean(self._error_history, axis=0)
+        # avg_history = np.array(self._error_history)
+        return avg_history
+
+    def fclappy_vision_flap(self, bird):
+        # use fclappy_vision
+        inputs = self._get_frame()
+        error = self._get_error(bird)
+        if error == 0 and bird.score > 3000 and bird.score % 1000 == 0:
+            if not os.path.exists("Models"):
+                os.mkdir("Models")
+            self.FCLNet.saveModel("Models/fcl2-" + str(bird.score) + ".txt")
+            file = open("Models/checkpoint", 'w')
+            file.write("Models/fcl2-" + str(bird.score) + ".txt")
+            file.close()
+        avg_history = self._get_error_history(bird)
+        bird.brain = self.FCLNet.train(inputs, error, avg_history)
+        if bird.brain > 0:
+            bird.flap() 
 
     def _update(self):
         # call the update function of all sprites to update their status.
@@ -427,32 +441,17 @@ class Game:
 
     def _save_FCL_parameters(self):
         # layer 0
-        a = np.zeros((1,4))
-        a = np.array([self.FCLNet.getLayer(0).getNeuron(0).getWeight(0), self.FCLNet.getLayer(0).getNeuron(1).getWeight(0), self.FCLNet.getLayer(0).getNeuron(2).getWeight(0), self.FCLNet.getLayer(0).getNeuron(3).getWeight(0)])
-        a = a.reshape(1,4)
+        a = np.zeros((1,1))
+        a = np.array([self.FCLNet.netOutput])
+        a = a.reshape(1,1)
         df = pd.DataFrame(a)
-        df.to_csv('layer1.csv', mode='a', header=False, index=False)
-
-
-        # layer 1
-        b = np.zeros((1,8))
-        b = np.array([self.FCLNet.getLayer(1).getNeuron(0).getWeight(0), self.FCLNet.getLayer(1).getNeuron(1).getWeight(0), self.FCLNet.getLayer(1).getNeuron(2).getWeight(0), self.FCLNet.getLayer(1).getNeuron(3).getWeight(0), self.FCLNet.getLayer(1).getNeuron(4).getWeight(0), self.FCLNet.getLayer(1).getNeuron(5).getWeight(0), self.FCLNet.getLayer(1).getNeuron(6).getWeight(0), self.FCLNet.getLayer(1).getNeuron(7).getWeight(0)])
-        b = b.reshape(1,8)
-        df = pd.DataFrame(b)
-        df.to_csv('layer2.csv', mode='a', header=False, index=False)
-
-        # layer 2
-        c = np.zeros((1,4))
-        c = np.array([self.FCLNet.getLayer(2).getNeuron(0).getWeight(0), self.FCLNet.getLayer(2).getNeuron(1).getWeight(0), self.FCLNet.getLayer(2).getNeuron(2).getWeight(0), self.FCLNet.getLayer(2).getNeuron(3).getWeight(0)])
-        c = c.reshape(1,4)
-        df = pd.DataFrame(c)
-        df.to_csv('layer3.csv', mode='a', header=False, index=False)
+        df.to_csv('FCLoutput.csv', mode='a', header=False, index=False)
 
         # error
-        d = np.zeros((1,1))
-        d = np.array(self._get_error2(self._agent_bird_1))
-        d = d.reshape(1,1)
-        df = pd.DataFrame(d)
+        b = np.zeros((1,1))
+        b = np.array(self._get_error2(self._agent_bird_1))
+        b = b.reshape(1,1)
+        df = pd.DataFrame(b)
         df.to_csv('error.csv', mode='a', header=False, index=False)
 
     def _save_Bird_Trajectory(self):
