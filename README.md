@@ -94,10 +94,22 @@ If you're interested, please check out the DeepFCL branch at https://github.com/
 ## 3. Bird Trajectory comparison between FCLNet driven by position errors and FCLNet Driven by abstract error and simply error-based control 
 ![Bird Trajectory comparison between FCLNet driven by position errors and FCLNet Driven by abstract error and simply error-based control](./Results/Trajectory.png)
 
+
+
 ## 4. DeepFCL with Convolutional layers
 ![Feature1](./Results/Feature1.png)
-![Feature2](./Results/Feature2.png)
+Features extracted by the convolutional layers of DeepFCL driven by closed-loop error-based experience history sequence.
 
+It can be seen that the convolutional layers can successfully extract the features of the bird and the pipes' end points.
+
+And the features of the bird and the pipes' end points are the most important features for the bird to make decisions.
+
+(Especially considering how do we define the error signal,it is highly related to the bird's height and the pipes' end points)
+
+![Feature2](./Results/Feature2.png)
+Another example of features extracted by the convolutional layers of DeepFCL driven by closed-loop error-based experience history sequence.
 
 ![DeepFCL Result in first 3000 learning steps ](./Results/DeepFCLresult.png)
+
+DeepFCL Result in first 3000 learning steps
 
