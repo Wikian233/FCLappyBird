@@ -98,6 +98,7 @@ If you're interested, please check out the DeepFCL branch at https://github.com/
 
 ## 4. DeepFCL with Convolutional layers
 ![Feature1](./Results/Feature1.png)
+
 Features extracted by the convolutional layers of DeepFCL driven by closed-loop error-based experience history sequence.
 
 It can be seen that the convolutional layers can successfully extract the features of the bird and the pipes' end points.
