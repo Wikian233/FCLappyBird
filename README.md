@@ -99,6 +99,7 @@ If you're interested, please check out the DeepFCL branch at https://github.com/
 ## 4. DeepFCL with Convolutional layers
 ![Feature1](./Results/Feature1.png)
 
+
 Features extracted by the convolutional layers of DeepFCL driven by closed-loop error-based experience history sequence.
 
 It can be seen that the convolutional layers can successfully extract the features of the bird and the pipes' end points.
@@ -113,4 +114,11 @@ Another example of features extracted by the convolutional layers of DeepFCL dri
 ![DeepFCL Result in first 3000 learning steps ](./Results/DeepFCLresult.png)
 
 DeepFCL Result in first 3000 learning steps
+
+Due to the reseaon that the time for submission is limited, the DeepFCL is not fully trained, but it can still be seen that the DeepFCL can learn to play the game.
+
+The further work is to slecet the appropriate hyperparameters and train the DeepFCL for a longer time. And also try to code it with GPU to speed up the training process.
+
+
+
 
