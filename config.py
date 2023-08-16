@@ -29,6 +29,9 @@ MIN_PIPE_LENGTH = 100
 
 # DeepFCL SETTINGS
 LEARNING_RATE = 0.00000015#0.0000007 #0.0000017#0.0000008 #0.0001 # learning rate 
+# selecting the learning rate is very important, if it is too large, the network will not learn
+# if it is too small, the network will learn very slowly
+# and also will face the prolblem of local minimum
 # note that the learning rate is set as 0.0001 for fcl2
 # and 0.001 for fcl
 MOMENTUM = 0.1
