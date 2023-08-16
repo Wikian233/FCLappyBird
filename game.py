@@ -12,7 +12,7 @@ import pandas as pd
 # from fcl import * 
 # from fcl2 import *
 
-from FCLappyVision import *
+from DeepFCL import *
 
 import numpy as np
 
@@ -70,7 +70,7 @@ class Game:
 
         self.FCLNet = FCLNet(LEARNING_RATE)
         # initialize the FCL network to control the bird agent
-        self._error_history = np.zeros((2, 350, 250))
+        self._error_history = np.zeros((EXPERIENCE_HISTORY_LENGTH, 350, 250))
         self._error_history_index = 0
 
         self._max_score = 0
@@ -291,34 +291,6 @@ class Game:
             error = 0
         return error
     
-    def _get_error3(self, bird):
-        errorGain = 20
-        if bird.score < 700:
-            error = errorGain / (1 + np.e ** (bird.score - bird.flapTimes))
-        else:
-            error = 0
-        return error
-    
-    def _get_netinput(self, bird):
-        def get_pipe_x(pipe):
-            return pipe.rect.x
-        first_front_bottom_pipe = sorted((p for p in self.pipes if p.type == PipeType.BOTTOM \
-                                 and p.rect.right >= bird.rect.left), key=get_pipe_x)[0]
-        second_front_bottom_pipe = sorted((p for p in self.pipes if p.type == PipeType.BOTTOM \
-                                 and p.rect.right >= bird.rect.left), key=get_pipe_x)[1]
-        third_front_bottom_pipe = sorted((p for p in self.pipes if p.type == PipeType.BOTTOM \
-                                 and p.rect.right >= bird.rect.left), key=get_pipe_x)[2]
-        fourth_front_bottom_pipe = sorted((p for p in self.pipes if p.type == PipeType.BOTTOM \
-                                    and p.rect.right >= bird.rect.left), key=get_pipe_x)[3]
-        input0 = bird.rect.y - (first_front_bottom_pipe.rect.y - (first_front_bottom_pipe.gap // 2))
-        input1 = bird.rect.y - (second_front_bottom_pipe.rect.y - (second_front_bottom_pipe.gap // 2))
-        input2 = bird.rect.y - (third_front_bottom_pipe.rect.y - (third_front_bottom_pipe.gap // 2))
-        input3 = bird.rect.y - (fourth_front_bottom_pipe.rect.y - (fourth_front_bottom_pipe.gap // 2))
-        # by getting the height error between the bird and the center of the nearest 4 pipes in front,
-        # to use as the input of the FCL network, so as to realize the utilization of future information,
-        # to judge whether the bird should fly up, and generate predictive control signals
-        return [input0, input1, input2, input3]
-    
     def _get_frame(self):
         frame = pg.surfarray.array3d(pg.display.get_surface())
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -388,12 +360,12 @@ class Game:
     def _get_error_history(self, bird):
         if abs(self._get_error(bird)) <= 10:
             image = self._get_frame()
-            if self._error_history_index < 2:
-                # 如果数组还有空间，直接存储图像
+            if self._error_history_index < EXPERIENCE_HISTORY_LENGTH:
+                # if array has space, store the image directly
                 self._error_history[self._error_history_index] = image
                 self._error_history_index += 1
             else:
-                # 如果数组已满，移动图像并在最后存储新图像
+                # if array is full, shift the array and store the image
                 self._error_history[0] = self._error_history[1]
                 self._error_history[1] = image    
         
