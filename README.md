@@ -95,5 +95,9 @@ If you're interested, please check out the DeepFCL branch at https://github.com/
 ![Bird Trajectory comparison between FCLNet driven by position errors and FCLNet Driven by abstract error and simply error-based control](./Results/Trajectory.png)
 
 ## 4. DeepFCL with Convolutional layers
+![Feature1](./Results/Feature1.png)
+![Feature2](./Results/Feature2.png)
+
+
 ![DeepFCL Result in first 3000 learning steps ](./Results/DeepFCLresult.png)
 
