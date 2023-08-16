@@ -131,8 +131,8 @@ class FCLNet(fcl.FeedforwardClosedloopLearning):
         target_tensor = torch.from_numpy(avg_history).float().unsqueeze(0)
         target_tensor = nn.functional.interpolate(target_tensor, size=(21, 15), mode='bilinear')
 
-        print(target_tensor.shape)
-        print(tensor_frame.shape)
+        # print(target_tensor.shape)
+        # print(tensor_frame.shape)
 
         if torch.cuda.is_available():
             tensor_frame = tensor_frame.cuda()
@@ -147,11 +147,13 @@ class FCLNet(fcl.FeedforwardClosedloopLearning):
         optimizer.step()
         
         tensor_frame = output.cpu().detach().numpy()
-        # img_to_show1 = tensor_frame[0, 0, :, :]
-        # # img_to_show1 = (img_to_show1 - img_to_show1.min()) / (img_to_show1.max() - img_to_show1.min()) * 255
-        # # img_to_show1 = img_to_show1.astype(np.uint8)
-        # cv2.imshow('Screen Capture', img_to_show1)
-
+        
+        # img = tensor_frame.squeeze(0)
+        # print(img.shape)
+        # plt.imshow(img[1])
+        # plt.pause(0.001)
+        # plt.clf()
+        
         img_to_show = np.ndarray.flatten(tensor_frame)
         
         return img_to_show
