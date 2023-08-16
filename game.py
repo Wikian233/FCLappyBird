@@ -70,8 +70,8 @@ class Game:
 
         self.FCLNet = FCLNet(LEARNING_RATE)
         # initialize the FCL network to control the bird agent
-        self._error_history = []
-        self.max_size = 2
+        self._error_history = np.zeros((2, 350, 250))
+        self._error_history_index = 0
 
         self._max_score = 0
         self._max_score_so_far = 0 
@@ -88,7 +88,7 @@ class Game:
         # self._add_human_player()
 
         # uncomment the following line to use the fcl2 network
-        if self._max_score_so_far > 3000:
+        if self._max_score_so_far > 7500:
             self.FCLNet.loadBestModel()
         # self.FCLNet.loadBestModel()
         self._create_agent_player(brain = 1)
@@ -169,8 +169,8 @@ class Game:
             self._update()
             self._draw()
             self._clock.tick(self._fps)
-            self._save_FCL_parameters()
-            self._save_Bird_Trajectory()
+            # self._save_FCL_parameters()
+            # self._save_Bird_Trajectory()
         if not self.running:
             return
 
@@ -325,7 +325,7 @@ class Game:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         frame = cv2.Canny(frame, threshold1 = 200, threshold2=300)
         frame = cv2.resize(frame, (int(frame.shape[1] / 2), int(frame.shape[0] / 2)))
-        frame = frame[150:500,0:250]
+        frame = frame[100:450,0:250]
         return frame
     
     def error_flap(self, bird):
@@ -376,20 +376,36 @@ class Game:
             bird.flap()
             bird.flapTimes += 1
 
+    # def _get_error_history(self, bird):
+    #     if abs(self._get_error(bird)) <= 20:
+    #         self._error_history.append(self._get_frame())
+    #     while len(self._error_history) > self.max_size:
+    #         self._error_history.pop(0)
+    #     # avg_history = np.mean(self._error_history, axis=0)
+    #     avg_history = np.array(self._error_history)
+    #     return avg_history
+
     def _get_error_history(self, bird):
-        if abs(self._get_error(bird)) <= 20:
-            self._error_history.append(self._get_frame())
-        while len(self._error_history) > self.max_size:
-            self._error_history.pop(0)
-        avg_history = np.mean(self._error_history, axis=0)
-        # avg_history = np.array(self._error_history)
-        return avg_history
+        if abs(self._get_error(bird)) <= 10:
+            image = self._get_frame()
+            if self._error_history_index < 2:
+                # 如果数组还有空间，直接存储图像
+                self._error_history[self._error_history_index] = image
+                self._error_history_index += 1
+            else:
+                # 如果数组已满，移动图像并在最后存储新图像
+                self._error_history[0] = self._error_history[1]
+                self._error_history[1] = image    
+        
+        return self._error_history
+        
+
 
     def fclappy_vision_flap(self, bird):
         # use fclappy_vision
         inputs = self._get_frame()
         error = self._get_error(bird)
-        if error == 0 and bird.score > 3000 and bird.score % 1000 == 0:
+        if bird.score > 7000 and bird.score % 500 == 0:
             if not os.path.exists("Models"):
                 os.mkdir("Models")
             self.FCLNet.saveModel("Models/fcl2-" + str(bird.score) + ".txt")
@@ -445,21 +461,21 @@ class Game:
         a = np.array([self.FCLNet.netOutput])
         a = a.reshape(1,1)
         df = pd.DataFrame(a)
-        df.to_csv('FCLoutput.csv', mode='a', header=False, index=False)
+        df.to_csv('FCLoutput.csv', mode='a', header=False, _error_history_index=False)
 
         # error
         b = np.zeros((1,1))
         b = np.array(self._get_error2(self._agent_bird_1))
         b = b.reshape(1,1)
         df = pd.DataFrame(b)
-        df.to_csv('error.csv', mode='a', header=False, index=False)
+        df.to_csv('error.csv', mode='a', header=False, _error_history_index=False)
 
     def _save_Bird_Trajectory(self):
         a = np.zeros((1,1))
         a = np.array(self._agent_bird_1.rect.y)
         a = a.reshape(1,1)
         df = pd.DataFrame(a)
-        df.to_csv('bird_trajectory4.csv', mode='a', header=False, index=False)
+        df.to_csv('bird_trajectory4.csv', mode='a', header=False, _error_history_index=False)
 
     def _draw(self):
 

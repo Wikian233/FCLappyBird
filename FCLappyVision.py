@@ -10,10 +10,11 @@ import cv2
 import torch
 import torch.nn as nn
 import torch.optim as optim
+pool_layer = nn.MaxPool2d(kernel_size=2, stride=2) 
 
-class SimpleCNN(nn.Module):
+class FeatureCNN(nn.Module):
     def __init__(self):
-        super(SimpleCNN, self).__init__()
+        super(FeatureCNN, self).__init__()
         
         self.conv_layer = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1)
         self.bn1 = nn.BatchNorm2d(16)
@@ -52,11 +53,11 @@ class SimpleCNN(nn.Module):
         return x
     
     
-model = SimpleCNN()
+model = FeatureCNN()
 if torch.cuda.is_available():
     model = model.cuda()
 
-optimizer = optim.SGD(model.parameters(), lr=0.001)
+optimizer = optim.SGD(model.parameters(), lr=0.00001)
 loss_function = nn.MSELoss()
 
 
@@ -93,17 +94,9 @@ class FCLNet(fcl.FeedforwardClosedloopLearning):
         self.netErr[:] = err * 500
         
         self.doStep(self.input_buff, self.netErr)
-        # for i in range(len(self.netOutput)):
-        #     self.netOutput[i] = self.getOutput(i)
-        # self.netOutput = self.getOutput(0) + self.getOutput(1) + self.getOutput(2) + self.getOutput(3) +\
-        #     self.getOutput(4) + self.getOutput(5) + self.getOutput(6) + self.getOutput(7) #+ np.tanh(err)
-        
-        self.netOutput = np.tanh(self.getOutput(0)) + np.tanh(self.getOutput(1)) + np.tanh(self.getOutput(2)) + np.tanh(self.getOutput(3)) #+\
-            # np.tanh(self.getOutput(4)) + np.tanh(self.getOutput(5)) + np.tanh(self.getOutput(6)) + np.tanh(self.getOutput(7)) +\
-            #     np.tanh(self.getOutput(8)) + np.tanh(self.getOutput(9)) + np.tanh(self.getOutput(10)) + np.tanh(self.getOutput(11)) 
 
-        # print(self.getOutput(0), self.getOutput(1), self.getOutput(2))
-        # print( err, self.netOutput, " , ",self.getOutput(1), self.getLayer(1).getNeuron(0).getWeight(0), self.getLayer(2).getNeuron(0).getWeight(0))
+        self.netOutput = np.tanh(self.getOutput(0)) + np.tanh(self.getOutput(1)) + np.tanh(self.getOutput(2)) + np.tanh(self.getOutput(3)) #+\
+        
         return self.netOutput
     
     def loadBestModel(self):
@@ -134,12 +127,9 @@ class FCLNet(fcl.FeedforwardClosedloopLearning):
                 print(f"files deleted {filename}")
 
     def process_img(self, image, avg_history):  
-        # image = cv2.resize(image, (int(image.shape[1] / 2), int(image.shape[0] / 2)))
-        # image = image[150:500,0:250]
-        print(avg_history.shape)
+
         tensor_frame = torch.from_numpy(image).float().unsqueeze(0).unsqueeze(0)
-        target_tensor = torch.from_numpy(avg_history).float().unsqueeze(0).unsqueeze(0)
-        target_tensor = torch.cat((target_tensor, target_tensor), dim=1)
+        target_tensor = torch.from_numpy(avg_history).float().unsqueeze(0)
         target_tensor = nn.functional.interpolate(target_tensor, size=(21, 15), mode='bilinear')
 
         print(target_tensor.shape)
@@ -158,6 +148,11 @@ class FCLNet(fcl.FeedforwardClosedloopLearning):
         optimizer.step()
         
         tensor_frame = output.cpu().detach().numpy()
+        # img_to_show1 = tensor_frame[0, 0, :, :]
+        # # img_to_show1 = (img_to_show1 - img_to_show1.min()) / (img_to_show1.max() - img_to_show1.min()) * 255
+        # # img_to_show1 = img_to_show1.astype(np.uint8)
+        # cv2.imshow('Screen Capture', img_to_show1)
+
         img_to_show = np.ndarray.flatten(tensor_frame)
         
         return img_to_show
