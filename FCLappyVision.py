@@ -10,7 +10,6 @@ import cv2
 import torch
 import torch.nn as nn
 import torch.optim as optim
-pool_layer = nn.MaxPool2d(kernel_size=2, stride=2) 
 
 class FeatureCNN(nn.Module):
     def __init__(self):
